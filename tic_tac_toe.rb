@@ -1,3 +1,4 @@
+require 'pry-byebug'
 #########################
 
 # Two players go back and forth on per turn
@@ -15,8 +16,6 @@
 #
 
 #########################
-
-winner = false
 
 # Creates a player object
 class Player
@@ -46,6 +45,7 @@ module Game
   @player_two = ''
   @player_symbol = ''
   @winner = false
+  @draw = false
 
   def self.explain_game
     puts 'Welcome to Tic Tac Toe!'
@@ -96,7 +96,7 @@ module Game
       @number_of_turns += 1
     else
       puts "#{@player_two.name}'s turn"
-      @player_symbol = 'Y'
+      @player_symbol = 'O'
       @number_of_turns += 1
     end
     @player_symbol
@@ -130,18 +130,119 @@ module Game
     end
   end
 
+  def self.check_horizonal
+    if @player_symbol == 'X'
+      if @board[0] == 'X' && @board[1] == 'X' && @board[2] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      elsif @board[3] == 'X' && @board[4] == 'X' && @board[5] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      elsif @board[6] == 'X' && @board[7] == 'X' && @board[8] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      else
+        false
+      end
+    elsif @player_symbol == 'O'
+      if @board[0] == 'O' && @board[1] == 'O' && @board[2] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      elsif @board[3] == 'O' && @board[4] == 'O' && @board[5] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      elsif @board[6] == 'O' && @board[7] == 'O' && @board[8] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      else
+        false
+      end
+    else
+      false
+    end
+  end
+
+  def self.check_vertical
+    if @player_symbol == 'X'
+      if @board[0] == 'X' && @board[3] == 'X' && @board[6] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      elsif @board[1] == 'X' && @board[4] == 'X' && @board[7] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      elsif @board[2] == 'X' && @board[5] == 'X' && @board[8] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      else
+        false
+      end
+    elsif @player_symbol == 'O'
+      if @board[0] == 'O' && @board[3] == 'O' && @board[6] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      elsif @board[1] == 'O' && @board[4] == 'O' && @board[7] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      elsif @board[2] == 'O' && @board[5] == 'O' && @board[8] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      else
+        false
+      end
+    else
+      false
+    end
+  end
+
+  def self.check_diagonal
+    if @player_symbol == 'X'
+      if @board[0] == 'X' && @board[4] == 'X' && @board[8] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      elsif @board[2] == 'X' && @board[4] == 'X' && @board[6] == 'X'
+        puts "#{@player_one.name} wins!"
+        @winner = true
+      end
+    elsif @player_symbol == 'O'
+      if @board[0] == 'O' && @board[4] == 'O' && @board[8] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      elsif @board[2] == 'O' && @board[4] == 'O' && @board[6] == 'O'
+        puts "#{@player_two.name} wins!"
+        @winner = true
+      end
+    end
+  end
+
+  def self.check_for_winner
+    Game.check_horizonal
+    Game.check_vertical
+    Game.check_diagonal
+  end
+  # Work on this later
+  def self.check_draw
+    if @winner == false && @board.all? == String
+      puts 'Draw!'
+      @draw = true
+    end
+  end
+
   def self.play_game
-    @already_explained == true ? Game.create_players : Game.explain_game
-    if @number_of_players == 2
-      if @number_of_turns.zero? then puts "#{@player_one.name}'s turn" end
+    until @already_explained
+      Game.explain_game
+    end
+    until @number_of_players == 2
+      Game.create_players
+    end
+    if @number_of_players == 2 && @winner == false || @number_of_players == 2 && @draw == false
       Game.display_board
-      until @winner
+      until @draw || @winner
         @player_choice = $stdin.gets.chomp.to_i
         Game.check_player_input(@player_choice)
-        next
+        Game.check_for_winner
       end
     end
   end
 end
 
-Game.play_game until winner
+Game.play_game
